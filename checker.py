@@ -36,6 +36,8 @@ def main():
         headers = {'Authorization': f'token {GITHUB_TOKEN}', 'Accept': 'application/vnd.github.v3+json'}
         res = httpx.get(url, headers=headers)
         data = json.loads(res.text)
+        # 避免Rate Limit
+        time.sleep(1)
         logger.info(f'仓库 {repo} 最新Actions状态: {data["workflow_runs"][0]["status"]}')
         if data['workflow_runs']:
             run = data['workflow_runs'][0]
