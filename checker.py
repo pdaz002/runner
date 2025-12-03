@@ -45,7 +45,7 @@ def main():
             run = data['workflow_runs'][0]
             if run['status'] == 'completed':
                 # 重新触发Actions
-                logger.info(f'仓库 {repo} 完成, 重新触发Actions')
+                logger.info(f'仓库 {repo} Actions状态为完成, 重新触发Actions')
                 # 生产冷却时间 1min - 3min
                 rd_time = random.randint(60, 180)
                 logger.info(f'仓库 {repo} 冷却时间 {rd_time} 秒')
@@ -56,7 +56,7 @@ def main():
                     with open('1.txt', 'w') as f:
                         f.write(uid)
                     git.Repo('.').index.add('1.txt')
-                    git.Repo('.').commit(uid)
+                    git.Repo('.').index.commit(uid)
                     logger.info(f'仓库 {repo} 提交 {uid}')
                     nochange = 1
                 # 推送
