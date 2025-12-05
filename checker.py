@@ -40,27 +40,31 @@ def main():
         data = json.loads(res.text)
         # 避免Rate Limit
         time.sleep(1)
-        logger.info(f'仓库 {repo} 最新Actions状态: {data["workflow_runs"][0]["status"]}')
-        if data['workflow_runs']:
-            run = data['workflow_runs'][0]
-            if run['status'] == 'completed':
-                # 重新触发Actions
-                logger.info(f'仓库 {repo} Actions状态为完成, 重新触发Actions')
-                # 生产冷却时间 1min - 3min
-                rd_time = random.randint(60, 180)
-                logger.info(f'仓库 {repo} 冷却时间 {rd_time} 秒')
-                time.sleep(rd_time)
-                if nochange == 0:
-                    # 修改1.txt
-                    uid = str(uuid4()).upper()
-                    with open('1.txt', 'w') as f:
-                        f.write(uid)
-                    git.Repo('.').index.add('1.txt')
-                    git.Repo('.').index.commit(uid)
-                    logger.info(f'仓库 {repo} 提交 {uid}')
-                    nochange = 1
-                # 推送
-                git.Repo('.').remote(name).push(force=True)
+        try:
+            logger.info(f'仓库 {repo} 最新Actions状态: {data["workflow_runs"][0]["status"]}')
+            if data['workflow_runs']:
+                run = data['workflow_runs'][0]
+                if run['status'] == 'completed':
+                    # 重新触发Actions
+                    logger.info(f'仓库 {repo} Actions状态为完成, 重新触发Actions')
+                    # 生产冷却时间 1min - 3min
+                    rd_time = random.randint(60, 180)
+                    logger.info(f'仓库 {repo} 冷却时间 {rd_time} 秒')
+                    time.sleep(rd_time)
+                    if nochange == 0:
+                        # 修改1.txt
+                        uid = str(uuid4()).upper()
+                        with open('1.txt', 'w') as f:
+                            f.write(uid)
+                        git.Repo('.').index.add('1.txt')
+                        git.Repo('.').index.commit(uid)
+                        logger.info(f'仓库 {repo} 提交 {uid}')
+                        nochange = 1
+                    # 推送
+                    git.Repo('.').remote(name).push(force=True)
+        except Exception as e:
+            logger.error(f'仓库 {repo} 检查Actions状态时出错: {e}')
+            continue
     logger.info('检查完成')
 
 
